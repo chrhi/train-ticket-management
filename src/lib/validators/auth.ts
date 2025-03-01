@@ -5,7 +5,13 @@ export const signinSchema = z.object({
   password: z.string(),
 });
 
-export const createUserSchema = z
+export const createUserSchema = z.object({
+  email: z.string().email(),
+  name: z.string(),
+  password: z.string(),
+});
+
+export const createUserUiSchema = z
   .object({
     email: z.string().email(),
     name: z.string(),
