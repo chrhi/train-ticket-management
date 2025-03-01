@@ -8,34 +8,51 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
+  id           String     @id @default(cuid())
+  email        String     @unique
   passwordHash String
   name         String
-  role         String    @default("admin")
-  createdAt    DateTime  @default(now())
+  role         String     @default("admin")
+  createdAt    DateTime   @default(now())
   lastLoginAt  DateTime?
-  active       Boolean   @default(true)
+  active       Boolean    @default(true)
   auditLogs    AuditLog[]
-  sessions     Session[] 
+  sessions     Session[]
 }
 
 model Session {
-  id           String    @id @default(cuid())
-  userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt    DateTime  
-  createdAt    DateTime  @default(now())
-  ipAddress    String?   
-  userAgent    String?   
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  ipAddress String?
+  userAgent String?
 }
 
 model AuditLog {
-  id        String      @id @default(cuid())
-  userId       String
+  id        String   @id @default(cuid())
+  userId    String
   user      User     @relation(fields: [userId], references: [id])
   action    String
   details   String?
   ipAddress String?
   createdAt DateTime @default(now())
+}
+
+model Station {
+  id String @id @default(cuid())
+
+  name String
+
+  desc String
+
+  prev_station String
+  next_station String
+
+  prev_dest Int
+  next_dest Int
+
+  isOrigin Boolean
+  isActive Boolean
 }

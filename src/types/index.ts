@@ -7,3 +7,15 @@ export type User = {
   lastLoginAt: string | Date | null;
   active: boolean;
 };
+
+export type Destination = {
+  id: number;
+  name: string;
+  prev: string;
+  next: string;
+  prev_dest: number;
+  next_dest: number;
+  desc: string;
+  isOrigin: boolean;
+  isActive: boolean;
+};

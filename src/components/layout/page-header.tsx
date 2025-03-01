@@ -1,5 +1,4 @@
 import { Search } from "lucide-react";
-
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -10,12 +9,7 @@ interface HeaderProps {
 
 export default function PageHeader({ title, className }: HeaderProps) {
   return (
-    <header
-      className={cn(
-        "sticky px-4 h-14 top-0 z-50 w-full border-b bg-white",
-        className
-      )}
-    >
+    <header className={cn("sticky px-4 h-20 top-0 z-50 w-full ", className)}>
       <div className="flex h-full items-center justify-between gap-4">
         <h1 className="hidden  text-xl md:block">{title}</h1>
 
