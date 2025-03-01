@@ -1,8 +1,12 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { createUserSchema } from "@/lib/validators/auth";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,60 +17,137 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signinSchema } from "@/lib/validators/auth";
+import { Loader2 } from "lucide-react";
 import { PasswordInput } from "../password-input";
 
-export function SiginForm() {
-  const form = useForm<z.infer<typeof signinSchema>>({
-    resolver: zodResolver(signinSchema),
+type FormValues = z.infer<typeof createUserSchema>;
+
+export default function CreateAdminForm({
+  closeModal,
+}: {
+  closeModal: () => void;
+}) {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
   });
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof signinSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
+  const createUser = async (data: FormValues) => {
+    const response = await fetch("/api/auth/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to create user");
+    }
+
+    return response.json();
+  };
+
+  const mutation = useMutation({
+    mutationFn: createUser,
+    onSuccess: () => {
+      toast("Your account has been created successfully!");
+      form.reset();
+      closeModal();
+    },
+    onError: (error: Error) => {
+      toast(error.message || "Something went wrong. Please try again.");
+      closeModal();
+    },
+  });
+
+  const onSubmit = (data: FormValues) => {
+    mutation.mutate(data);
+  };
 
   return (
-    <div className="w-full md:w-96 h-fit bg-white flex flex-col gap-y-4 p-4 border rounded-lg shadow">
-      <p className="text-primary text-xl font-semibold">Admin access</p>
+    <div className="w-full h-full  space-y-6 bg-white ">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-4 w-full h-fit min-h-full"
-        >
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="enter your email here" {...field} />
-                </FormControl>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="p-4  space-y-4 ">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="John Doe"
+                      {...field}
+                      disabled={mutation.isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <PasswordInput placeholder="enter your password" {...field} />
-                </FormControl>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="email@example.com"
+                      {...field}
+                      disabled={mutation.isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" className="w-full my-8" size={"lg"}>
-            Login
-          </Button>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      type="password"
+                      placeholder="••••••••"
+                      {...field}
+                      disabled={mutation.isPending}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="w-full h-[100px] border-t bg-gray-100 p-4 flex items-end justify-end gap-x-4">
+            <Button disabled={mutation.isPending} variant={"secondary"}>
+              Cancel
+            </Button>
+
+            <Button type="submit" disabled={mutation.isPending}>
+              {mutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating account...
+                </>
+              ) : (
+                "Register"
+              )}
+            </Button>
+          </div>
         </form>
       </Form>
     </div>

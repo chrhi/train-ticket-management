@@ -7,11 +7,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Validate the input against the schema that includes confirm_password
     const validationResult = createUserSchema.safeParse(body);
 
     if (!validationResult.success) {
-      // Return validation errors
       return NextResponse.json(
         {
           error: "Validation failed",
@@ -21,7 +19,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Extract only the fields we need for the database
     const { email, name, password } = validationResult.data;
 
     // Check if user already exists
@@ -36,7 +33,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash the password with Argon2
     const passwordHash = await argon2.hash(password, {
       type: argon2.argon2id, // Recommended variant (combines security features)
       memoryCost: 2 ** 16, // 64 MB memory usage
@@ -44,7 +40,6 @@ export async function POST(request: Request) {
       parallelism: 1, // Number of threads
     });
 
-    // Create the admin user
     const newUser = await db.admin.create({
       data: {
         email,
