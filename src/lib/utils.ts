@@ -5,10 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function add() {
-  return "this is an add";
-}
+export function getAppBaseUrl() {
+  const baseUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000"
+      : "https://train-ticket-management.vercel.app";
 
-export function umake() {
-  return "this is an add";
+  return baseUrl;
 }

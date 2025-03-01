@@ -1,45 +1,24 @@
+import { getAdminsAction } from "@/app/actions/admins";
 import PageHeader from "@/components/layout/page-header";
 import MaxWidthWrapper from "@/components/max-width-wrapper";
 import { CreatAdminModal } from "@/components/modals/create-admin";
-import { Product, columns } from "@/components/tables/columns";
+import { usersColumns } from "@/components/tables/columns/users-columns";
 import { DataTable } from "@/components/tables/data-table";
 
-async function getData(): Promise<Product[]> {
-  const data: Product[] = [];
-
-  if (!data) {
-    return [];
-  }
-
-  const products = data?.map((item) => {
-    return {
-      id: item.id,
-      status: "Active",
-      price: Number(item.price),
-      title: item.title,
-      //@ts-expect-error this urls exists
-      media: item.media?.urls[0] as string,
-      createdAt: item.createdAt,
-    };
-  });
-
-  return products;
-}
-
-export default async function Page() {
-  const data = await getData();
+export default async function AdminUsersPage() {
+  const data = await getAdminsAction();
 
   return (
     <>
-      <PageHeader title="Products" />
+      <PageHeader title="Admin users" />
       <MaxWidthWrapper className="my-10">
-        <div className="w-full h-[50px] flex items-center justify-between ">
-          <h2 className="text-xl font-bold ">All Products </h2>
+        <div className="w-full h-[50px] flex items-center justify-between">
+          <h2 className="text-xl font-bold">All Admin Users</h2>
 
           <CreatAdminModal />
         </div>
-        <div className=" py-4">
-          <DataTable columns={columns} data={data} />
+        <div className="py-4">
+          <DataTable columns={usersColumns} data={data} />
         </div>
       </MaxWidthWrapper>
     </>
