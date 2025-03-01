@@ -8,3 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export function add() {
   return "this is an add";
 }
+
+export function umake() {
+  return "this is an add";
+}

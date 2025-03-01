@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-
-import bcrypt from "bcrypt";
+import argon2 from "argon2";
 import { createUserSchema } from "@/lib/validators/auth";
 import { db } from "@/lib/db";
 
@@ -37,9 +36,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash the password
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    // Hash the password with Argon2
+    const passwordHash = await argon2.hash(password, {
+      type: argon2.argon2id, // Recommended variant (combines security features)
+      memoryCost: 2 ** 16, // 64 MB memory usage
+      timeCost: 3, // Number of iterations
+      parallelism: 1, // Number of threads
+    });
 
     // Create the admin user
     const newUser = await db.admin.create({
