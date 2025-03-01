@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const admins = await db.admin.findMany({
+    const admins = await db.user.findMany({
       where: {
         active: true,
       },

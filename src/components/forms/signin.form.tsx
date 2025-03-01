@@ -3,6 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,16 +20,48 @@ import { Input } from "@/components/ui/input";
 import { signinSchema } from "@/lib/validators/auth";
 import { PasswordInput } from "../password-input";
 
-export function SiginForm() {
+export function SigninForm() {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof signinSchema>>({
     resolver: zodResolver(signinSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  // 2. Define a submit handler.
+  const { mutate: login, isPending } = useMutation({
+    mutationFn: async (values: z.infer<typeof signinSchema>) => {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to sign in");
+      }
+
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast.success("Signed in successfully");
+      router.push("/admin");
+      router.refresh(); // Refresh the page to update server components with new auth state
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to sign in");
+
+      form.resetField("password");
+    },
+  });
+
   function onSubmit(values: z.infer<typeof signinSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+    login(values);
   }
 
   return (
@@ -45,7 +81,6 @@ export function SiginForm() {
                 <FormControl>
                   <Input placeholder="enter your email here" {...field} />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
@@ -59,13 +94,17 @@ export function SiginForm() {
                 <FormControl>
                   <PasswordInput placeholder="enter your password" {...field} />
                 </FormControl>
-
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full my-8" size={"lg"}>
-            Login
+          <Button
+            type="submit"
+            className="w-full my-8"
+            size={"lg"}
+            disabled={isPending}
+          >
+            {isPending ? "Signing in..." : "Login"}
           </Button>
         </form>
       </Form>

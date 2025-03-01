@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     const { email, name, password } = validationResult.data;
 
     // Check if user already exists
-    const existingUser = await db.admin.findUnique({
+    const existingUser = await db.user.findUnique({
       where: { email },
     });
 
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       parallelism: 1, // Number of threads
     });
 
-    const newUser = await db.admin.create({
+    const newUser = await db.user.create({
       data: {
         email,
         name,
