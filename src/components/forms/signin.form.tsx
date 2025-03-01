@@ -33,7 +33,7 @@ export function SigninForm() {
 
   const { mutate: login, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof signinSchema>) => {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch("/api/auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
