@@ -9,7 +9,7 @@ export type User = {
 };
 
 export type Destination = {
-  id: number;
+  id: string;
   name: string;
   prev: string;
   next: string;

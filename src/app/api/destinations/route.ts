@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Get all stations
 export async function GET() {
   try {
     const stations = await db.station.findMany({

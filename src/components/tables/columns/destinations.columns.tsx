@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { MoreHorizontal, Pencil } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Destination } from "@/types";
+import Link from "next/link";
 
 export const destinationsColumns: ColumnDef<Destination>[] = [
   {
@@ -32,14 +33,7 @@ export const destinationsColumns: ColumnDef<Destination>[] = [
       return <div className="max-w-md truncate">{row.getValue("desc")}</div>;
     },
   },
-  {
-    accessorKey: "isOrigin",
-    header: "Origin",
-    cell: ({ row }) => {
-      const isOrigin = row.getValue("isOrigin") as boolean;
-      return isOrigin ? "Yes" : "No";
-    },
-  },
+
   {
     accessorKey: "isActive",
     header: "Status",
@@ -73,20 +67,12 @@ export const destinationsColumns: ColumnDef<Destination>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => console.log("Edit destination:", destination.id)}
-              className="cursor-pointer"
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => console.log("Delete destination:", destination.id)}
-              className="cursor-pointer text-red-600"
-            >
-              <Trash className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
+            <Link href={`/admin/destinations/${destination.id}`}>
+              <DropdownMenuItem className="cursor-pointer">
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+            </Link>
           </DropdownMenuContent>
         </DropdownMenu>
       );
