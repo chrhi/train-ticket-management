@@ -3,9 +3,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,13 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
@@ -36,7 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { stationSchema } from "@/lib/validators/stations";
-import { Loader2, Info } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { z } from "zod";
 import { Destination } from "@/types";
@@ -44,55 +37,23 @@ import { Destination } from "@/types";
 type StationFormValues = z.infer<typeof stationSchema>;
 
 export function UpdateStationForm({
-  stationId,
-  destinations,
+  station,
 }: {
-  stationId: string;
+  station: Destination;
   destinations: Destination[];
 }) {
   const form = useForm<StationFormValues>({
     resolver: zodResolver(stationSchema),
     defaultValues: {
-      name: "",
-      prev_station: "",
-      next_station: "",
-      prev_dest: 0,
-      next_dest: 0,
-      desc: "",
-      isActive: true,
+      name: station.name,
+      desc: station.desc,
+      isActive: station.isActive,
     },
   });
-
-  // Fetch the current station data
-  const { data: station, isLoading } = useQuery({
-    queryKey: ["station", stationId],
-    queryFn: async () => {
-      const response = await fetch(`/api/stations/${stationId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch station");
-      }
-      return response.json();
-    },
-  });
-
-  // Update form when station data is loaded
-  useEffect(() => {
-    if (station) {
-      form.reset({
-        name: station.name,
-        prev_station: station.prev_station || "",
-        next_station: station.next_station || "",
-        prev_dest: station.prev_dest || 0,
-        next_dest: station.next_dest || 0,
-        desc: station.desc || "",
-        isActive: station.isActive,
-      });
-    }
-  }, [station, form]);
 
   const mutation = useMutation({
     mutationFn: async (data: StationFormValues) => {
-      const response = await fetch(`/api/destinations/${stationId}`, {
+      const response = await fetch(`/api/destinations/${station?.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -129,14 +90,6 @@ export function UpdateStationForm({
 
   function onSubmit(data: StationFormValues) {
     mutation.mutate(data);
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
   }
 
   return (
@@ -197,123 +150,7 @@ export function UpdateStationForm({
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="prev_station"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Previous Station</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value.toString()}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select previous station" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="None">None</SelectItem>
-                            {destinations.length !== 0 &&
-                              destinations?.map((destination) => (
-                                <SelectItem
-                                  key={destination.id}
-                                  value={destination.name}
-                                >
-                                  {destination.name}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="prev_dest"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Distance from Previous (km)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormDescription className="flex items-center">
-                          <Info className="h-4 w-4 mr-1" />
-                          Distance in kilometers
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="next_station"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Next Station</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value.toString()}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select next station" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="None">None</SelectItem>
-                            {destinations.length !== 0 &&
-                              destinations.map((destination) => (
-                                <SelectItem
-                                  key={destination.id}
-                                  value={destination.name}
-                                >
-                                  {destination.name}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="next_dest"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Distance to Next (km)</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                          />
-                        </FormControl>
-                        <FormDescription className="flex items-center">
-                          <Info className="h-4 w-4 mr-1" />
-                          Distance in kilometers
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <div className="space-y-6"></div>
               </div>
 
               <div className="w-full h-fit">
@@ -350,7 +187,7 @@ export function UpdateStationForm({
                     if (
                       confirm("Are you sure you want to delete this station?")
                     ) {
-                      fetch(`/api/destinations/${stationId}`, {
+                      fetch(`/api/destinations/${station.id}`, {
                         method: "DELETE",
                       })
                         .then((response) => {

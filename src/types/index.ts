@@ -11,12 +11,7 @@ export type User = {
 export type Destination = {
   id: string;
   name: string;
-  prev: string;
-  next: string;
-  prev_dest: number;
-  next_dest: number;
   desc: string;
-  isOrigin: boolean;
   isActive: boolean;
 };
 

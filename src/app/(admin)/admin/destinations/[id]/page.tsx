@@ -27,7 +27,7 @@ export default async function Page({
     <>
       <PageHeader title="Create distination" />
       <MaxWidthWrapper className="my-4 h-fit min-h-screen px-4">
-        <UpdateStationForm destinations={data} stationId={destination?.id} />
+        <UpdateStationForm destinations={data} station={destination} />
       </MaxWidthWrapper>
     </>
   );

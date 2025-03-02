@@ -44,12 +44,8 @@ model Station {
   id                  String        @id @default(cuid())
   name                String
   desc                String
-  prev_station        String
-  next_station        String
-  prev_dest           Int
-  next_dest           Int
+
   isActive            Boolean
-  // Graph connections between stations
   outgoingConnections Connection[]  @relation("FromStation")
   incomingConnections Connection[]  @relation("ToStation")
   StationStop         StationStop[]
