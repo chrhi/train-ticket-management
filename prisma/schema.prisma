@@ -44,7 +44,6 @@ model Station {
   id                  String        @id @default(cuid())
   name                String
   desc                String
-
   isActive            Boolean
   outgoingConnections Connection[]  @relation("FromStation")
   incomingConnections Connection[]  @relation("ToStation")

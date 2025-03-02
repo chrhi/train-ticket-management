@@ -3,7 +3,6 @@ import { db } from "@/lib/db";
 import { getSession, isAuthorized } from "@/lib/session";
 import { stationSchema } from "@/lib/validators/stations";
 
-// GET a single station by ID
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

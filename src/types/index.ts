@@ -23,7 +23,22 @@ export type Connection = {
   isActive: boolean;
 };
 
-export type trainRoude = {
+export type Train = {
   id: string;
-  cities: { name: string; id: string }[];
+  name: string;
+  number: string;
+  isActive: boolean;
+};
+
+export type TrainClass = {
+  id: string;
+  name: string;
+  pricePerKm: number;
+};
+
+export type TrainLine = {
+  id: string;
+  trainId: string;
+  name: string;
+  isActive: boolean;
 };

@@ -1,11 +1,11 @@
-import { getTrainLinesAction } from "@/app/actions/train-line";
+import { getTrainClassesAction } from "@/app/actions/train-class";
 import PageHeader from "@/components/layout/page-header";
 import MaxWidthWrapper from "@/components/max-width-wrapper";
-import { trainLineColumns } from "@/components/tables/columns/train/train-line.columns";
+import { trainClassColumns } from "@/components/tables/columns/train/train-class.columns";
 import { DataTable } from "@/components/tables/data-table";
 
 export default async function AdminUsersPage() {
-  const data = await getTrainLinesAction();
+  const data = await getTrainClassesAction();
 
   return (
     <>
@@ -15,7 +15,7 @@ export default async function AdminUsersPage() {
           <h2 className="text-xl font-bold">All Train routes</h2>
         </div>
         <div className="py-4">
-          <DataTable columns={trainLineColumns} data={data} />
+          <DataTable columns={trainClassColumns} data={data} />
         </div>
       </MaxWidthWrapper>
     </>
