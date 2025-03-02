@@ -1,8 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
 import {
@@ -12,78 +10,59 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { User } from "@/types";
+import { Destination } from "@/types";
 
-export const usersColumns: ColumnDef<User>[] = [
+export const destinationsColumns: ColumnDef<Destination>[] = [
   {
     accessorKey: "name",
     header: "Name",
+  },
+  {
+    accessorKey: "prev",
+    header: "Previous",
+  },
+  {
+    accessorKey: "next",
+    header: "Next",
+  },
+  {
+    accessorKey: "desc",
+    header: "Description",
     cell: ({ row }) => {
-      return (
-        <div className="flex items-center">
-          <img
-            src={row.getValue("media") ?? ""}
-            alt={`${row.getValue("title")}`}
-            className="w-10 h-10 object-cover rounded-md"
-          />
-        </div>
-      );
+      return <div className="max-w-md truncate">{row.getValue("desc")}</div>;
     },
   },
   {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "price",
-    header: "Price",
+    accessorKey: "isOrigin",
+    header: "Origin",
     cell: ({ row }) => {
-      const price = parseFloat(row.getValue("price"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(price);
-      return <div className="font-medium">{formatted}</div>;
+      const isOrigin = row.getValue("isOrigin") as boolean;
+      return isOrigin ? "Yes" : "No";
     },
   },
   {
-    accessorKey: "role",
-    header: "Role",
+    accessorKey: "isActive",
+    header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
+      const isActive = row.getValue("isActive") as boolean;
       return (
         <Badge
           className={
-            status.toLowerCase() === "active"
+            isActive
               ? "bg-green-100 text-green-800"
               : "bg-gray-100 text-gray-800"
           }
         >
-          {status}
+          {isActive ? "Active" : "Inactive"}
         </Badge>
       );
     },
   },
   {
-    accessorKey: "createdAt",
-    header: "Created At",
-    cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt"));
-      return date.toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-    },
-  },
-  {
     id: "actions",
-    header: "actions",
+    header: "Actions",
     cell: ({ row }) => {
-      const product = row.original;
+      const destination = row.original;
 
       return (
         <DropdownMenu>
@@ -95,14 +74,14 @@ export const usersColumns: ColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={() => console.log("Edit product:", product.id)}
+              onClick={() => console.log("Edit destination:", destination.id)}
               className="cursor-pointer"
             >
               <Pencil className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => console.log("Delete product:", product.id)}
+              onClick={() => console.log("Delete destination:", destination.id)}
               className="cursor-pointer text-red-600"
             >
               <Trash className="mr-2 h-4 w-4" />

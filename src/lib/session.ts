@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { db } from "./db";
+import { NextResponse } from "next/server";
 
 export async function getSession() {
   const cookieStore = await cookies();
@@ -38,4 +39,24 @@ export async function getSession() {
     console.error("Error retrieving session:", error);
     return null;
   }
+}
+
+export async function isAuthorized() {
+  const session = await getSession();
+
+  if (!session) {
+    return new NextResponse(
+      JSON.stringify({ error: "Unauthorized: Please login to continue" }),
+      { status: 401 }
+    );
+  }
+
+  if (session.user.role !== "admin") {
+    return new NextResponse(
+      JSON.stringify({ error: "Forbidden: Admin access required" }),
+      { status: 403 }
+    );
+  }
+
+  return null;
 }
