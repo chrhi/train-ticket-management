@@ -49,6 +49,16 @@ const Sidebar = () => {
       icon: <Map size={20} />,
     },
     {
+      label: "Connections",
+      href: "/admin/connections",
+      icon: <Map size={20} />,
+    },
+    {
+      label: "Trains",
+      href: "/admin/train-routes",
+      icon: <Train size={20} />,
+    },
+    {
       label: "Train Routes",
       href: "/admin/train-routes",
       icon: <Train size={20} />,

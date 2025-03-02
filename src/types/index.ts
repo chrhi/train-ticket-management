@@ -19,3 +19,16 @@ export type Destination = {
   isOrigin: boolean;
   isActive: boolean;
 };
+
+export type Connection = {
+  id: string;
+  fromStation: string;
+  toStation: string;
+  distance: number;
+  isActive: boolean;
+};
+
+export type trainRoude = {
+  id: string;
+  cities: { name: string; id: string }[];
+};
