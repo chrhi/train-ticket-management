@@ -72,8 +72,8 @@ model Train {
 
 model TrainClass {
   id         String      @id @default(cuid())
-  name       String // e.g., "Economy", "Business", "First Class"
-  pricePerKm Float // base price per kilometer
+  name       String 
+  pricePerKm Float 
   trainLines TrainLine[] @relation("TrainLineClasses")
   tickets    Ticket[]
 }
@@ -82,7 +82,7 @@ model TrainLine {
   id        String          @id @default(cuid())
   trainId   String
   train     Train           @relation(fields: [trainId], references: [id])
-  name      String // e.g., "Algiers-Oran Express"
+  name      String 
   classes   TrainClass[]    @relation("TrainLineClasses")
   schedules TrainSchedule[]
   isActive  Boolean         @default(true)

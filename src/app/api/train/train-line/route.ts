@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
 
     const validationResult = TrainLineSchema.safeParse(body);
     if (!validationResult.success) {
+      console.log(validationResult.error.format());
       return new NextResponse(
         JSON.stringify({
           error: "Validation failed",
@@ -22,10 +23,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Extract classes from the request if provided
     const { classes, ...trainLineData } = body;
 
-    // Create the train line with proper relationships
     const trainLine = await db.trainLine.create({
       data: {
         ...trainLineData,

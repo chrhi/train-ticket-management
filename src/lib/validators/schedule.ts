@@ -1,7 +1,11 @@
 import { z } from "zod";
 
-export const trainScheduleSchema = z.object({
-  trainLineId: z.string(),
-  dayOfWeek: z.string(),
-  departureTime: z.string(),
+export const TrainScheduleSchema = z.object({
+  trainLineId: z.string({
+    required_error: "Please select a train line",
+  }),
+  // Make dayOfWeek nullable, where null means daily
+  dayOfWeek: z.number().min(0).max(6).nullable(),
+  hour: z.number().min(0).max(23),
+  minute: z.number().min(0).max(59),
 });

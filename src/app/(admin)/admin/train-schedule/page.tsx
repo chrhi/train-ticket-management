@@ -1,14 +1,14 @@
-import { getTrainsAction } from "@/app/actions/train";
+import { getTrainSchedulesAction } from "@/app/actions/schedule";
 import PageHeader from "@/components/layout/page-header";
 import MaxWidthWrapper from "@/components/max-width-wrapper";
-import { trainColumns } from "@/components/tables/columns/train/train.columns";
+import { trainScheduleColumns } from "@/components/tables/columns/schedual.column";
 import { DataTable } from "@/components/tables/data-table";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default async function AdminUsersPage() {
-  const data = await getTrainsAction();
+  const data = await getTrainSchedulesAction();
 
   return (
     <>
@@ -18,14 +18,14 @@ export default async function AdminUsersPage() {
           <h2 className="text-xl font-bold">Train Schedule</h2>
 
           <Link
-            href={"/admin/destinations/create"}
+            href={"/admin/train-schedule/create"}
             className={cn(buttonVariants())}
           >
             set schedule
           </Link>
         </div>
         <div className="py-4">
-          <DataTable columns={trainColumns} data={data} />
+          <DataTable columns={trainScheduleColumns} data={data} />
         </div>
       </MaxWidthWrapper>
     </>

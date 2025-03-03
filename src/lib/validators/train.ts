@@ -8,7 +8,7 @@ export const trainSchema = z.object({
 
 export const TrainClassSchema = z.object({
   name: z.string(),
-  pricePerKm: z.number(),
+  pricePerKm: z.number().min(0, "Price must be a positive number"),
 });
 
 export const TrainLineSchema = z.object({

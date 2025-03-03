@@ -8,7 +8,7 @@ import { TrainClass } from "@/types";
  */
 export async function getTrainClassesAction(): Promise<TrainClass[]> {
   try {
-    const response = await fetch(`${getAppBaseUrl()}/api/train-class`, {
+    const response = await fetch(`${getAppBaseUrl()}/api/train/train-class`, {
       cache: "no-store",
     });
 

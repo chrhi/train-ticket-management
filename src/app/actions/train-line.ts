@@ -8,7 +8,7 @@ import { TrainLine } from "@/types";
  */
 export async function getTrainLinesAction(): Promise<TrainLine[]> {
   try {
-    const response = await fetch(`${getAppBaseUrl()}/api/train-line`, {
+    const response = await fetch(`${getAppBaseUrl()}/api/train/train-line`, {
       cache: "no-store",
     });
 

@@ -46,8 +46,8 @@ export type TrainLine = {
 export type TrainSchedule = {
   id: string;
   trainLineId: string;
-  dayOfWeek: number;
-  departureTime: string;
+  dayOfWeek: number | null;
+  departureTime: Date;
 };
 
 export type StationStop = {

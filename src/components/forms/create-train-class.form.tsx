@@ -24,11 +24,13 @@ export function CreateTrainClassForm() {
     resolver: zodResolver(TrainClassSchema),
     defaultValues: {
       name: "",
+      pricePerKm: 0,
     },
   });
 
   const { mutate: createTrain, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof TrainClassSchema>) => {
+      console.log("the function on ui is working");
       const response = await fetch("/api/train/train-class", {
         method: "POST",
         headers: {
@@ -45,8 +47,8 @@ export function CreateTrainClassForm() {
       return await response.json();
     },
     onSuccess: () => {
-      toast.success("a new train class was created successfully");
-      router.push("/admin/train");
+      toast.success("A new train class was created successfully");
+      router.push("/admin/train-classes");
     },
     onError: (error) => {
       toast.error(error.message || "Failed to create new train class");
@@ -58,7 +60,7 @@ export function CreateTrainClassForm() {
   }
 
   return (
-    <div className="w-full  h-fit bg-white flex flex-col gap-y-4 p-4 border rounded-lg shadow">
+    <div className="w-full h-fit bg-white flex flex-col gap-y-4 p-4 border rounded-lg shadow">
       <div className="my-8">
         <p className="text-primary text-2xl font-semibold">
           Create new train class
@@ -77,7 +79,7 @@ export function CreateTrainClassForm() {
                 <FormItem>
                   <FormLabel>Class name</FormLabel>
                   <FormControl>
-                    <Input placeholder="train name " {...field} />
+                    <Input placeholder="train name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -87,14 +89,22 @@ export function CreateTrainClassForm() {
             <FormField
               control={form.control}
               name="pricePerKm"
-              render={({ field }) => (
+              render={({ field: { onChange, value, ...restField } }) => (
                 <FormItem>
-                  <FormLabel>price for every km (USD)</FormLabel>
+                  <FormLabel>Price for every km (USD)</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="something like 1 or 0.5"
                       type="number"
-                      {...field}
+                      step="0.01"
+                      value={value?.toString() || "0"}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        onChange(
+                          inputValue === "" ? 0 : parseFloat(inputValue)
+                        );
+                      }}
+                      {...restField}
                     />
                   </FormControl>
                   <FormMessage />
@@ -110,7 +120,7 @@ export function CreateTrainClassForm() {
               size={"lg"}
               disabled={isPending}
             >
-              {isPending ? "creating..." : "Create new class"}
+              {isPending ? "Creating..." : "Create new class"}
             </Button>
           </div>
         </form>

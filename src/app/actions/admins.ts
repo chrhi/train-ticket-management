@@ -11,8 +11,6 @@ export async function getAdminsAction(): Promise<User[]> {
 
     const data: User[] = await response.json();
 
-    console.log(data);
-
     return data;
   } catch (error) {
     console.error("Error fetching admin users:", error);
