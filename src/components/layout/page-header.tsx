@@ -26,7 +26,7 @@ export default function PageHeader({
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full px-4 h-16 backdrop-blur-sm bg-background/80 border-b",
+        "fixed  top-0 z-50 w-full px-4 h-16 backdrop-blur-sm bg-background/80 border-b",
         className
       )}
     >

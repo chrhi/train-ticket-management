@@ -11,7 +11,7 @@ export default async function AdminUsersPage() {
   return (
     <>
       <PageHeader title="Admin users" />
-      <MaxWidthWrapper className="my-10">
+      <MaxWidthWrapper className="my-20">
         <div className="w-full h-[50px] flex items-center justify-between">
           <h2 className="text-xl font-bold">All Admin Users</h2>
 

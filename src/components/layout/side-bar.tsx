@@ -142,7 +142,7 @@ const Sidebar = ({ user }: { user: UserAsProps }) => {
               className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-colors duration-200 
                 ${
                   isExpanded
-                    ? "bg-primary/10 text-primary font-medium"
+                    ? "text-primary "
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
             >

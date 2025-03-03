@@ -13,7 +13,7 @@ export default async function AdminUsersPage() {
   return (
     <>
       <PageHeader title="Connections" showBackButton />
-      <MaxWidthWrapper className="my-10">
+      <MaxWidthWrapper className="my-10 mt-16">
         <div className="w-full h-[50px] flex items-center justify-between">
           <h2 className="text-xl font-bold">All Connections</h2>
 

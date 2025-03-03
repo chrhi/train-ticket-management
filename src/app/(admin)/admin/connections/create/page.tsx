@@ -10,7 +10,7 @@ export default async function AdminUsersPage() {
   return (
     <>
       <PageHeader title="Create distination" />
-      <MaxWidthWrapper className="my-4 h-fit min-h-screen px-4">
+      <MaxWidthWrapper className="my-4 h-fit min-h-screen px-4 mt-16">
         <CreateConnectionForm destinations={data} />
       </MaxWidthWrapper>
     </>

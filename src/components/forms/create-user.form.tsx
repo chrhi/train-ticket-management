@@ -132,8 +132,12 @@ export default function CreateAdminForm({
             />
           </div>
 
-          <div className="w-full h-[100px] border-t bg-gray-100 p-4 flex items-end justify-end gap-x-4">
-            <Button disabled={mutation.isPending} variant={"secondary"}>
+          <div className="w-full h-[100px] border-t rounded-b-2xl bg-gray-100 p-4 flex items-end justify-end gap-x-4">
+            <Button
+              disabled={mutation.isPending}
+              variant={"secondary"}
+              className={"bg-white"}
+            >
               Cancel
             </Button>
 

@@ -6,7 +6,7 @@ export default async function Page() {
   return (
     <>
       <PageHeader title="Create Train" showBackButton />
-      <MaxWidthWrapper className="my-4 h-fit min-h-screen px-4">
+      <MaxWidthWrapper className="my-4 h-fit min-h-screen px-4 mt-16">
         <CreateTrainClassForm />
       </MaxWidthWrapper>
     </>

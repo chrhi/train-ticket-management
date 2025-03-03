@@ -17,7 +17,7 @@ export function CreatAdminModal() {
   return (
     <Dialog open={open} onOpenChange={(val) => setOpen(val)}>
       <DialogTrigger asChild>
-        <Button variant="outline">Create Admin User</Button>
+        <Button>Create Admin User</Button>
       </DialogTrigger>
       <DialogContent className="w-full ">
         <DialogHeader className="p-4">
