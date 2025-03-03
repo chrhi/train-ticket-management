@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowLeft, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { ArrowLeft } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -47,15 +47,7 @@ export default function PageHeader({
           <h1 className="font-bold text-lg md:hidden">{title}</h1>
         </div>
 
-        <div className="flex-1 max-w-xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search..."
-              className="w-full pl-10 h-10 rounded-full border-muted-foreground/20"
-            />
-          </div>
-        </div>
+        <div className="flex-1 max-w-xl mx-auto"></div>
 
         <div className="w-9">
           {/* This creates space balance when back button is shown */}

@@ -1,30 +1,31 @@
-import { getTrainClassesAction } from "@/app/actions/train-class";
+import { getTrainsAction } from "@/app/actions/train";
 import PageHeader from "@/components/layout/page-header";
 import MaxWidthWrapper from "@/components/max-width-wrapper";
-import { trainClassColumns } from "@/components/tables/columns/train/train-class.columns";
+import { trainColumns } from "@/components/tables/columns/train/train.columns";
 import { DataTable } from "@/components/tables/data-table";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-export default async function Page() {
-  const data = await getTrainClassesAction();
+export default async function AdminUsersPage() {
+  const data = await getTrainsAction();
 
   return (
     <>
-      <PageHeader title="Train Classes" />
+      <PageHeader title="Distinations" />
       <MaxWidthWrapper className="my-10">
         <div className="w-full h-[50px] flex items-center justify-between">
-          <h2 className="text-xl font-bold">All the available classes</h2>
+          <h2 className="text-xl font-bold">Train Schedule</h2>
+
           <Link
-            href={"/admin/train-classes/create"}
+            href={"/admin/destinations/create"}
             className={cn(buttonVariants())}
           >
-            create Train class
+            set schedule
           </Link>
         </div>
         <div className="py-4">
-          <DataTable columns={trainClassColumns} data={data} />
+          <DataTable columns={trainColumns} data={data} />
         </div>
       </MaxWidthWrapper>
     </>

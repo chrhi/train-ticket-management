@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, isAuthorized } from "@/lib/session";
 import { TrainClassSchema } from "@/lib/validators/train";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   const authError = await isAuthorized();
@@ -25,6 +26,8 @@ export async function POST(req: NextRequest) {
     const trainClass = await db.trainClass.create({
       data: validationResult.data,
     });
+
+    revalidatePath("/admin/train-classes");
 
     const session = await getSession();
     await db.auditLog.create({

@@ -17,10 +17,7 @@ export default async function AdminUsersPage() {
         <div className="w-full h-[50px] flex items-center justify-between">
           <h2 className="text-xl font-bold">All Trains</h2>
 
-          <Link
-            href={"/admin/destinations/create"}
-            className={cn(buttonVariants())}
-          >
+          <Link href={"/admin/train/create"} className={cn(buttonVariants())}>
             create new distination
           </Link>
         </div>

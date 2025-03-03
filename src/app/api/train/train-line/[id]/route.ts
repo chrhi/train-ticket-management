@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, isAuthorized } from "@/lib/session";
 import { TrainLineSchema } from "@/lib/validators/train";
+import { revalidatePath } from "next/cache";
 
 export async function GET(
   request: Request,
@@ -89,6 +90,7 @@ export async function PATCH(
         classes: true,
       },
     });
+    revalidatePath("/admin/train-routes");
 
     const session = await getSession();
     await db.auditLog.create({
@@ -140,6 +142,8 @@ export async function DELETE(
         id,
       },
     });
+
+    revalidatePath("/admin/train-routes");
 
     const session = await getSession();
     await db.auditLog.create({

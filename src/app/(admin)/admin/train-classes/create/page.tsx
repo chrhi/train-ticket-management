@@ -1,4 +1,4 @@
-import { CreateTrainForm } from "@/components/forms/create-train.form";
+import { CreateTrainClassForm } from "@/components/forms/create-train-class.form";
 import PageHeader from "@/components/layout/page-header";
 import MaxWidthWrapper from "@/components/max-width-wrapper";
 
@@ -7,7 +7,7 @@ export default async function Page() {
     <>
       <PageHeader title="Create Train" showBackButton />
       <MaxWidthWrapper className="my-4 h-fit min-h-screen px-4">
-        <CreateTrainForm />
+        <CreateTrainClassForm />
       </MaxWidthWrapper>
     </>
   );

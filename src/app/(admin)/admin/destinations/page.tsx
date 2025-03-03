@@ -12,16 +12,16 @@ export default async function AdminUsersPage() {
 
   return (
     <>
-      <PageHeader title="Distinations" />
+      <PageHeader title="Destinations" />
       <MaxWidthWrapper className="my-10">
         <div className="w-full h-[50px] flex items-center justify-between">
-          <h2 className="text-xl font-bold">All Distinations</h2>
+          <h2 className="text-xl font-bold">All Destinations</h2>
 
           <Link
             href={"/admin/destinations/create"}
             className={cn(buttonVariants())}
           >
-            create new distination
+            create new destination
           </Link>
         </div>
         <div className="py-4">

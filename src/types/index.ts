@@ -42,3 +42,19 @@ export type TrainLine = {
   name: string;
   isActive: boolean;
 };
+
+export type TrainSchedule = {
+  id: string;
+  trainLineId: string;
+  dayOfWeek: number;
+  departureTime: string;
+};
+
+export type StationStop = {
+  id: string;
+  trainScheduleId: string;
+  stationId: string;
+  arrivalTime: string;
+  departureTime: string;
+  stopOrder: number;
+};

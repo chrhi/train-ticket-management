@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, isAuthorized } from "@/lib/session";
 import { TrainLineSchema } from "@/lib/validators/train";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   const authError = await isAuthorized();
@@ -35,6 +36,8 @@ export async function POST(req: NextRequest) {
         }),
       },
     });
+
+    revalidatePath("/admin/train-routes");
 
     const session = await getSession();
     await db.auditLog.create({
