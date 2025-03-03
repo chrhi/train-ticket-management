@@ -9,6 +9,7 @@ export type User = {
 };
 
 export type UserAsProps = Omit<User, "createdAt" | "lastLoginAt" | "active">;
+
 export type Destination = {
   id: string;
   name: string;

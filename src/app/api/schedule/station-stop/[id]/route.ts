@@ -1,16 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, isAuthorized } from "@/lib/session";
 import { StationStopSchema } from "@/lib/validators/station-stop";
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const stationStop = await db.stationStop.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         station: true,
         trainSchedule: {
@@ -46,16 +47,17 @@ export async function GET(
 }
 
 export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const authError = await isAuthorized();
   if (authError) return authError;
 
   try {
     // Check if station stop exists
     const existingStationStop = await db.stationStop.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingStationStop) {
@@ -65,7 +67,7 @@ export async function PUT(
       );
     }
 
-    const body = await req.json();
+    const body = await request.json();
     const validationResult = StationStopSchema.partial().safeParse(body);
 
     if (!validationResult.success) {
@@ -98,7 +100,7 @@ export async function PUT(
           },
         });
 
-        if (existingStop && existingStop.id !== params.id) {
+        if (existingStop && existingStop.id !== id) {
           return new NextResponse(
             JSON.stringify({
               error: "This station is already part of this train schedule",
@@ -119,7 +121,7 @@ export async function PUT(
           },
         });
 
-        if (existingStop && existingStop.id !== params.id) {
+        if (existingStop && existingStop.id !== id) {
           return new NextResponse(
             JSON.stringify({
               error: "This stop order is already taken for this train schedule",
@@ -147,7 +149,7 @@ export async function PUT(
     });
 
     const updatedStationStop = await db.stationStop.update({
-      where: { id: params.id },
+      where: { id: id },
       data: updateData,
     });
 
@@ -157,7 +159,7 @@ export async function PUT(
         userId: session!.user.id,
         action: "UPDATE_STATION_STOP",
         details: `Updated station stop ID: ${updatedStationStop.id}`,
-        ipAddress: req.headers.get("x-forwarded-for"),
+        ipAddress: request.headers.get("x-forwarded-for"),
       },
     });
 
@@ -175,16 +177,17 @@ export async function PUT(
 }
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const authError = await isAuthorized();
   if (authError) return authError;
 
   try {
     // Check if station stop exists
     const stationStop = await db.stationStop.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!stationStop) {
@@ -197,7 +200,7 @@ export async function DELETE(
     // Check if this stop is referenced by any tickets
     const tickets = await db.ticket.findMany({
       where: {
-        OR: [{ originStopId: params.id }, { destinationStopId: params.id }],
+        OR: [{ originStopId: id }, { destinationStopId: id }],
       },
       take: 1,
     });
@@ -213,7 +216,7 @@ export async function DELETE(
 
     // Delete the station stop
     await db.stationStop.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     const session = await getSession();
@@ -221,8 +224,8 @@ export async function DELETE(
       data: {
         userId: session!.user.id,
         action: "DELETE_STATION_STOP",
-        details: `Deleted station stop ID: ${params.id}`,
-        ipAddress: req.headers.get("x-forwarded-for"),
+        details: `Deleted station stop ID: ${id}`,
+        ipAddress: request.headers.get("x-forwarded-for"),
       },
     });
 

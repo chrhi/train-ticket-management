@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,21 +36,15 @@ const ExtendedTrainLineSchema = TrainLineSchema.extend({
   classes: z.array(z.string()).optional(),
 });
 
-export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
+export function CreateTrainLineForm({
+  trains,
+  trainClasses,
+}: {
+  trains: Train[];
+  trainClasses: TrainClass[];
+}) {
   const router = useRouter();
   const [availableClasses, setAvailableClasses] = useState<TrainClass[]>([]);
-
-  // Fetch available train classes
-  const { data: trainClasses, isLoading: isLoadingClasses } = useQuery({
-    queryKey: ["trainClasses"],
-    queryFn: async () => {
-      const response = await fetch("/api/train/train-class");
-      if (!response.ok) {
-        throw new Error("Failed to fetch train classes");
-      }
-      return response.json() as Promise<TrainClass[]>;
-    },
-  });
 
   useEffect(() => {
     if (trainClasses) {
@@ -170,60 +164,54 @@ export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
                       Select the classes available on this train line
                     </FormDescription>
                   </div>
-                  {isLoadingClasses ? (
-                    <p>Loading classes...</p>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {availableClasses.map((trainClass) => (
-                        <FormField
-                          key={trainClass.id}
-                          control={form.control}
-                          name="classes"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={trainClass.id}
-                                className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(
-                                      trainClass.id
-                                    )}
-                                    onCheckedChange={(
-                                      checked: CheckedState
-                                    ) => {
-                                      const currentValues = field.value || [];
-                                      if (checked) {
-                                        field.onChange([
-                                          ...currentValues,
-                                          trainClass.id,
-                                        ]);
-                                      } else {
-                                        field.onChange(
-                                          currentValues.filter(
-                                            (value) => value !== trainClass.id
-                                          )
-                                        );
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <div className="space-y-1 leading-none">
-                                  <FormLabel className="font-medium">
-                                    {trainClass.name}
-                                  </FormLabel>
-                                  <FormDescription>
-                                    Price: {trainClass.pricePerKm} per km
-                                  </FormDescription>
-                                </div>
-                              </FormItem>
-                            );
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {availableClasses.map((trainClass) => (
+                      <FormField
+                        key={trainClass.id}
+                        control={form.control}
+                        name="classes"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={trainClass.id}
+                              className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(trainClass.id)}
+                                  onCheckedChange={(checked: CheckedState) => {
+                                    const currentValues = field.value || [];
+                                    if (checked) {
+                                      field.onChange([
+                                        ...currentValues,
+                                        trainClass.id,
+                                      ]);
+                                    } else {
+                                      field.onChange(
+                                        currentValues.filter(
+                                          (value) => value !== trainClass.id
+                                        )
+                                      );
+                                    }
+                                  }}
+                                />
+                              </FormControl>
+                              <div className="space-y-1 leading-none">
+                                <FormLabel className="font-medium">
+                                  {trainClass.name}
+                                </FormLabel>
+                                <FormDescription>
+                                  Price: {trainClass.pricePerKm} per km
+                                </FormDescription>
+                              </div>
+                            </FormItem>
+                          );
+                        }}
+                      />
+                    ))}
+                  </div>
+
                   <FormMessage />
                 </FormItem>
               )}

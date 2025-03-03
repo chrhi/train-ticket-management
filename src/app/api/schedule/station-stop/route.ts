@@ -82,16 +82,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // here we are creating the time for the arrival and departure
+
+    const departureTime = new Date();
+    departureTime.setHours(validationResult.data.departureTimeHour);
+    departureTime.setMinutes(validationResult.data.departureTimeMinute);
+    departureTime.setSeconds(0);
+    departureTime.setMilliseconds(0);
+
+    const arrivalTime = new Date();
+    departureTime.setHours(validationResult.data.arrivalTimeHour);
+    departureTime.setMinutes(validationResult.data.arrivalTimeMinute);
+    departureTime.setSeconds(0);
+    departureTime.setMilliseconds(0);
+
     const stationStop = await db.stationStop.create({
       data: {
         trainScheduleId: validationResult.data.trainScheduleId,
         stationId: validationResult.data.stationId,
-        arrivalTime: validationResult.data.arrivalTime
-          ? new Date(validationResult.data.arrivalTime)
-          : null,
-        departureTime: validationResult.data.departureTime
-          ? new Date(validationResult.data.departureTime)
-          : null,
+        arrivalTime,
+
+        departureTime,
         stopOrder: validationResult.data.stopOrder,
       },
     });

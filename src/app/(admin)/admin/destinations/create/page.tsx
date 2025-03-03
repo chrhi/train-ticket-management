@@ -2,7 +2,7 @@ import { CreateStationForm } from "@/components/forms/create-distination.form";
 import PageHeader from "@/components/layout/page-header";
 import MaxWidthWrapper from "@/components/max-width-wrapper";
 
-export default async function AdminUsersPage() {
+export default async function Page() {
   return (
     <>
       <PageHeader title="Create distination" showBackButton />

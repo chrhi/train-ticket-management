@@ -3,8 +3,10 @@ import { z } from "zod";
 export const StationStopSchema = z.object({
   trainScheduleId: z.string().cuid(),
   stationId: z.string().cuid(),
-  arrivalTime: z.string().datetime().nullable().optional(),
-  departureTime: z.string().datetime().nullable().optional(),
+  arrivalTimeHour: z.number().min(0).max(23),
+  arrivalTimeMinute: z.number().min(0).max(59),
+  departureTimeHour: z.number().min(0).max(23),
+  departureTimeMinute: z.number().min(0).max(59),
   stopOrder: z.number().int().positive(),
 });
 
