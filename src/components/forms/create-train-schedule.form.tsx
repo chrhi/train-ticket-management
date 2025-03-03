@@ -55,17 +55,17 @@ export function CreateScheduleForm({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create new train line");
+        throw new Error(error.error || "Failed to create new train schedule");
       }
 
       return await response.json();
     },
     onSuccess: () => {
-      toast.success("A new train class was created successfully");
+      toast.success("A new train schedule was created successfully");
       router.push("/admin/train-schedule");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to create new train line");
+      toast.error(error.message || "Failed to create new train schedule");
     },
   });
 

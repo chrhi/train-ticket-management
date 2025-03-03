@@ -32,7 +32,7 @@ export default function Providers({ children }: ProvidersProps) {
         showOnShallow
       />
       {children}
-      <Toaster />
+      <Toaster position="top-right" theme="light" />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

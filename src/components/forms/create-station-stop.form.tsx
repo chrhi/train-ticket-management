@@ -26,6 +26,7 @@ import { StationStopSchema } from "@/lib/validators/station-stop";
 import { useRouter } from "next/navigation";
 import { Destination, TrainSchedule } from "@/types";
 import { Clock } from "lucide-react";
+import { Input } from "../ui/input";
 
 export function CreateStationStopForm({
   stations,
@@ -37,7 +38,9 @@ export function CreateStationStopForm({
   const router = useRouter();
   const form = useForm<z.infer<typeof StationStopSchema>>({
     resolver: zodResolver(StationStopSchema),
-    defaultValues: {},
+    defaultValues: {
+      stopOrder: 0,
+    },
   });
 
   const { mutate: createTrain, isPending } = useMutation({
@@ -52,17 +55,17 @@ export function CreateStationStopForm({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to create new train line");
+        throw new Error(error.error || "Failed to create new station stop");
       }
 
       return await response.json();
     },
     onSuccess: () => {
-      toast.success("A new train class was created successfully");
-      router.push("/admin/train-schedule");
+      toast.success("A new station stop was created successfully");
+      router.push("/admin/station-stop");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to create new train line");
+      toast.error(error.message || "Failed to create new station stop");
     },
   });
 
@@ -115,6 +118,30 @@ export function CreateStationStopForm({
 
           <FormField
             control={form.control}
+            name="stopOrder"
+            render={({ field: { onChange, value, ...restField } }) => (
+              <FormItem>
+                <FormLabel>The of this station in the route</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="something like 1 or 0.5"
+                    type="number"
+                    step="0.01"
+                    value={value?.toString() || "0"}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      onChange(inputValue === "" ? 0 : parseFloat(inputValue));
+                    }}
+                    {...restField}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="trainScheduleId"
             render={({ field }) => (
               <FormItem>
@@ -145,10 +172,10 @@ export function CreateStationStopForm({
             )}
           />
 
-          <FormLabel>Arrival Time</FormLabel>
+          <FormLabel>Departure Time</FormLabel>
           <div className="flex items-center space-x-2">
             <Clock className="h-4 w-4" />
-            <div className="grid grid-cols-2 gap-2 w-full max-w-md">
+            <div className="grid grid-cols-2 gap-2 w-full ">
               <FormField
                 control={form.control}
                 name="departureTimeHour"
@@ -210,13 +237,14 @@ export function CreateStationStopForm({
               />
             </div>
           </div>
-          <FormLabel>Departure Time</FormLabel>
+          <FormLabel>Arrival Time</FormLabel>
           <div className="flex items-center space-x-2">
             <Clock className="h-4 w-4" />
-            <div className="grid grid-cols-2 gap-2 w-full max-w-md">
+
+            <div className="grid grid-cols-2 gap-2 w-full ">
               <FormField
                 control={form.control}
-                name="departureTimeHour"
+                name="arrivalTimeHour"
                 render={({ field }) => (
                   <FormItem>
                     <Select
