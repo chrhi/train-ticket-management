@@ -1,5 +1,5 @@
 export type User = {
-  id: number;
+  id: string;
   email: string;
   name: string;
   role: string;
@@ -8,6 +8,7 @@ export type User = {
   active: boolean;
 };
 
+export type UserAsProps = Omit<User, "createdAt" | "lastLoginAt" | "active">;
 export type Destination = {
   id: string;
   name: string;
@@ -23,25 +24,27 @@ export type Connection = {
   isActive: boolean;
 };
 
-export type Train = {
+export interface Train {
   id: string;
   name: string;
   number: string;
   isActive: boolean;
-};
+}
 
-export type TrainClass = {
+export interface TrainClass {
   id: string;
   name: string;
   pricePerKm: number;
-};
+}
 
-export type TrainLine = {
+export interface TrainLine {
   id: string;
-  trainId: string;
   name: string;
+  trainId: string;
   isActive: boolean;
-};
+  train: Train;
+  classes: TrainClass[];
+}
 
 export type TrainSchedule = {
   id: string;

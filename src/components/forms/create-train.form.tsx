@@ -16,15 +16,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { trainSchema } from "@/lib/validators/train";
+import { TrainSchema } from "@/lib/validators/train";
 
 import { Switch } from "../ui/switch";
 import { useRouter } from "next/navigation";
 
 export function CreateTrainForm() {
   const router = useRouter();
-  const form = useForm<z.infer<typeof trainSchema>>({
-    resolver: zodResolver(trainSchema),
+  const form = useForm<z.infer<typeof TrainSchema>>({
+    resolver: zodResolver(TrainSchema),
     defaultValues: {
       name: "",
       number: "",
@@ -33,7 +33,7 @@ export function CreateTrainForm() {
   });
 
   const { mutate: createTrain, isPending } = useMutation({
-    mutationFn: async (values: z.infer<typeof trainSchema>) => {
+    mutationFn: async (values: z.infer<typeof TrainSchema>) => {
       const response = await fetch("/api/train", {
         method: "POST",
         headers: {
@@ -58,7 +58,7 @@ export function CreateTrainForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof trainSchema>) {
+  function onSubmit(values: z.infer<typeof TrainSchema>) {
     createTrain(values);
   }
 

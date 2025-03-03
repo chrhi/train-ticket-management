@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, isAuthorized } from "@/lib/session";
-import { trainSchema } from "@/lib/validators/train";
+import { TrainSchema } from "@/lib/validators/train";
 import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const validationResult = trainSchema.safeParse(body);
+    const validationResult = TrainSchema.safeParse(body);
     if (!validationResult.success) {
       return new NextResponse(
         JSON.stringify({

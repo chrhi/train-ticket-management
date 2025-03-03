@@ -18,6 +18,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { UserAsProps } from "@/types";
 
 interface NavItem {
   label: string;
@@ -26,7 +27,7 @@ interface NavItem {
   children?: NavItem[];
 }
 
-const Sidebar = () => {
+const Sidebar = ({ user }: { user: UserAsProps }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
@@ -207,8 +208,8 @@ const Sidebar = () => {
             U
           </div>
           <div>
-            <p className="text-sm font-medium">User Name</p>
-            <p className="text-xs text-gray-500">user@example.com</p>
+            <p className="text-sm font-medium">{user.name}</p>
+            <p className="text-xs text-gray-500">{user.email}</p>
           </div>
         </div>
       </div>

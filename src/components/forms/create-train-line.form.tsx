@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,23 +25,51 @@ import {
 } from "@/components/ui/select";
 import { TrainLineSchema } from "@/lib/validators/train";
 import { useRouter } from "next/navigation";
-import { Train } from "@/types";
+import { Train, TrainClass } from "@/types";
 import { Switch } from "../ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState, useEffect } from "react";
+import { CheckedState } from "@radix-ui/react-checkbox";
+
+// Extend the schema to include classes
+const ExtendedTrainLineSchema = TrainLineSchema.extend({
+  classes: z.array(z.string()).optional(),
+});
 
 export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
   const router = useRouter();
-  const form = useForm<z.infer<typeof TrainLineSchema>>({
-    resolver: zodResolver(TrainLineSchema),
+  const [availableClasses, setAvailableClasses] = useState<TrainClass[]>([]);
+
+  // Fetch available train classes
+  const { data: trainClasses, isLoading: isLoadingClasses } = useQuery({
+    queryKey: ["trainClasses"],
+    queryFn: async () => {
+      const response = await fetch("/api/train/train-class");
+      if (!response.ok) {
+        throw new Error("Failed to fetch train classes");
+      }
+      return response.json() as Promise<TrainClass[]>;
+    },
+  });
+
+  useEffect(() => {
+    if (trainClasses) {
+      setAvailableClasses(trainClasses);
+    }
+  }, [trainClasses]);
+
+  const form = useForm<z.infer<typeof ExtendedTrainLineSchema>>({
+    resolver: zodResolver(ExtendedTrainLineSchema),
     defaultValues: {
       isActive: true,
       name: "",
       trainId: "",
+      classes: [],
     },
   });
 
-  const { mutate: createTrain, isPending } = useMutation({
-    mutationFn: async (values: z.infer<typeof TrainLineSchema>) => {
-      console.log("valide in ui", values);
+  const { mutate: createTrainLine, isPending } = useMutation({
+    mutationFn: async (values: z.infer<typeof ExtendedTrainLineSchema>) => {
       const response = await fetch("/api/train/train-line", {
         method: "POST",
         headers: {
@@ -58,7 +86,7 @@ export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
       return await response.json();
     },
     onSuccess: () => {
-      toast.success("A new train class was created successfully");
+      toast.success("A new train line was created successfully");
       router.push("/admin/train-routes");
     },
     onError: (error) => {
@@ -66,15 +94,15 @@ export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof TrainLineSchema>) {
-    createTrain(values);
+  function onSubmit(values: z.infer<typeof ExtendedTrainLineSchema>) {
+    createTrainLine(values);
   }
 
   return (
     <div className="w-full h-fit bg-white flex flex-col gap-y-4 p-4 border rounded-lg shadow">
       <div className="my-8">
         <p className="text-primary text-2xl font-semibold">
-          Create new train class
+          Create new train line
         </p>
       </div>
       <Form {...form}>
@@ -88,9 +116,9 @@ export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Class name</FormLabel>
+                  <FormLabel>Line name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Train class name" {...field} />
+                    <Input placeholder="Train line name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,8 +149,81 @@ export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Select the train for this class
+                    Select the train for this line
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Train classes selection */}
+          <div className="w-full h-fit gap-4">
+            <FormField
+              control={form.control}
+              name="classes"
+              render={() => (
+                <FormItem>
+                  <div className="mb-4">
+                    <FormLabel className="text-base">Train Classes</FormLabel>
+                    <FormDescription>
+                      Select the classes available on this train line
+                    </FormDescription>
+                  </div>
+                  {isLoadingClasses ? (
+                    <p>Loading classes...</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {availableClasses.map((trainClass) => (
+                        <FormField
+                          key={trainClass.id}
+                          control={form.control}
+                          name="classes"
+                          render={({ field }) => {
+                            return (
+                              <FormItem
+                                key={trainClass.id}
+                                className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.includes(
+                                      trainClass.id
+                                    )}
+                                    onCheckedChange={(
+                                      checked: CheckedState
+                                    ) => {
+                                      const currentValues = field.value || [];
+                                      if (checked) {
+                                        field.onChange([
+                                          ...currentValues,
+                                          trainClass.id,
+                                        ]);
+                                      } else {
+                                        field.onChange(
+                                          currentValues.filter(
+                                            (value) => value !== trainClass.id
+                                          )
+                                        );
+                                      }
+                                    }}
+                                  />
+                                </FormControl>
+                                <div className="space-y-1 leading-none">
+                                  <FormLabel className="font-medium">
+                                    {trainClass.name}
+                                  </FormLabel>
+                                  <FormDescription>
+                                    Price: {trainClass.pricePerKm} per km
+                                  </FormDescription>
+                                </div>
+                              </FormItem>
+                            );
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -138,7 +239,7 @@ export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Active Status</FormLabel>
                     <FormDescription>
-                      Enable or disable this train class
+                      Enable or disable this train line
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -155,7 +256,7 @@ export function CreateTrainLineForm({ trains }: { trains: Train[] }) {
 
           <div className="w-full h-fit flex items-center my-8 justify-end">
             <Button type="submit" className="" size={"lg"} disabled={isPending}>
-              {isPending ? "Creating..." : "Create new class"}
+              {isPending ? "Creating..." : "Create new train line"}
             </Button>
           </div>
         </form>
