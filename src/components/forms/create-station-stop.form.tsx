@@ -315,7 +315,7 @@ export function CreateStationStopForm({
                         key={trainSchedule.id}
                         value={trainSchedule.id}
                       >
-                        {trainSchedule.id}
+                        {trainSchedule.trainLineName}
                       </SelectItem>
                     ))}
                   </SelectContent>
