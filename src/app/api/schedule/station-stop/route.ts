@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession, isAuthorized } from "@/lib/session";
@@ -22,9 +21,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const data = validationResult.data;
+
     // Check if trainScheduleId exists
     const trainSchedule = await db.trainSchedule.findUnique({
-      where: { id: validationResult.data.trainScheduleId },
+      where: { id: data.trainScheduleId },
     });
 
     if (!trainSchedule) {
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     // Check if station exists
     const station = await db.station.findUnique({
-      where: { id: validationResult.data.stationId },
+      where: { id: data.stationId },
     });
 
     if (!station) {
@@ -49,8 +50,8 @@ export async function POST(req: NextRequest) {
     const existingStopByStation = await db.stationStop.findUnique({
       where: {
         trainScheduleId_stationId: {
-          trainScheduleId: validationResult.data.trainScheduleId,
-          stationId: validationResult.data.stationId,
+          trainScheduleId: data.trainScheduleId,
+          stationId: data.stationId,
         },
       },
     });
@@ -67,8 +68,8 @@ export async function POST(req: NextRequest) {
     const existingStopByOrder = await db.stationStop.findUnique({
       where: {
         trainScheduleId_stopOrder: {
-          trainScheduleId: validationResult.data.trainScheduleId,
-          stopOrder: validationResult.data.stopOrder,
+          trainScheduleId: data.trainScheduleId,
+          stopOrder: data.stopOrder,
         },
       },
     });
@@ -82,28 +83,38 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // here we are creating the time for the arrival and departure
+    // Handle nullable times
+    const departureTime =
+      data.departureTimeHour !== null && data.departureTimeMinute !== null
+        ? (() => {
+            const time = new Date();
+            time.setHours(data.departureTimeHour!);
+            time.setMinutes(data.departureTimeMinute!);
+            time.setSeconds(0);
+            time.setMilliseconds(0);
+            return time;
+          })()
+        : null;
 
-    const departureTime = new Date();
-    departureTime.setHours(validationResult.data.departureTimeHour);
-    departureTime.setMinutes(validationResult.data.departureTimeMinute);
-    departureTime.setSeconds(0);
-    departureTime.setMilliseconds(0);
-
-    const arrivalTime = new Date();
-    departureTime.setHours(validationResult.data.arrivalTimeHour);
-    departureTime.setMinutes(validationResult.data.arrivalTimeMinute);
-    departureTime.setSeconds(0);
-    departureTime.setMilliseconds(0);
+    const arrivalTime =
+      data.arrivalTimeHour !== null && data.arrivalTimeMinute !== null
+        ? (() => {
+            const time = new Date();
+            time.setHours(data.arrivalTimeHour!);
+            time.setMinutes(data.arrivalTimeMinute!);
+            time.setSeconds(0);
+            time.setMilliseconds(0);
+            return time;
+          })()
+        : null;
 
     const stationStop = await db.stationStop.create({
       data: {
-        trainScheduleId: validationResult.data.trainScheduleId,
-        stationId: validationResult.data.stationId,
+        trainScheduleId: data.trainScheduleId,
+        stationId: data.stationId,
         arrivalTime,
-
         departureTime,
-        stopOrder: validationResult.data.stopOrder,
+        stopOrder: data.stopOrder,
       },
     });
 
@@ -129,19 +140,22 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
 export async function GET() {
   try {
     const stationStops = await db.stationStop.findMany({
       include: {
-        station: { select: { id: true, name: true } }, // ✅ Fetch station name
+        station: { select: { id: true, name: true } },
+        trainSchedule: { select: { id: true } },
       },
       orderBy: { stopOrder: "asc" },
     });
 
-    // ✅ Clean the response
+    // Clean the response
     const formattedStops = stationStops.map((stop) => ({
       id: stop.id,
-      stationName: stop.station.name, // ✅ Ensure station name is included
+      stationName: stop.station.name,
+      trainScheduleId: stop.trainSchedule.id,
       arrivalTime: stop.arrivalTime,
       departureTime: stop.departureTime,
       stopOrder: stop.stopOrder,

@@ -25,8 +25,140 @@ import {
 import { StationStopSchema } from "@/lib/validators/station-stop";
 import { useRouter } from "next/navigation";
 import { Destination, TrainSchedule } from "@/types";
-import { Clock } from "lucide-react";
+import { Clock, Info, AlertCircle } from "lucide-react";
 import { Input } from "../ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+export function TimeSelect({
+  label,
+  hourName,
+  minuteName,
+  form,
+  otherHourName,
+  otherMinuteName,
+}: {
+  label: string;
+  hourName: "arrivalTimeHour" | "departureTimeHour";
+  minuteName: "arrivalTimeMinute" | "departureTimeMinute";
+  form: any;
+  otherHourName: "arrivalTimeHour" | "departureTimeHour";
+  otherMinuteName: "arrivalTimeMinute" | "departureTimeMinute";
+}) {
+  const hourValue = form.watch(hourName);
+  const otherHourValue = form.watch(otherHourName);
+
+  const handleTimeToggle = (checked: boolean) => {
+    if (checked) {
+      // If setting this time to null
+      form.setValue(hourName, null);
+      form.setValue(minuteName, null);
+
+      // Ensure the other time is not null
+      if (otherHourValue === null) {
+        form.setValue(otherHourName, 0);
+        form.setValue(otherMinuteName, 0);
+      }
+    } else {
+      // If unchecking null, set to 0
+      form.setValue(hourName, 0);
+      form.setValue(minuteName, 0);
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center space-x-2">
+        <Clock className="h-4 w-4" />
+        <FormLabel>{label}</FormLabel>
+        <div className="flex items-center space-x-2">
+          <FormField
+            control={form.control}
+            name={`${hourName}IsNull`}
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={hourValue === null}
+                    onCheckedChange={handleTimeToggle}
+                  />
+                </FormControl>
+                <FormLabel className="font-normal">
+                  First/Last Station
+                </FormLabel>
+              </FormItem>
+            )}
+          />
+          <Info className="h-4 w-4 text-gray-500" />
+        </div>
+      </div>
+
+      {hourValue !== null && (
+        <div className="grid grid-cols-2 gap-2 w-full">
+          <FormField
+            control={form.control}
+            name={hourName}
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={(value) => {
+                    const hourValue = parseInt(value);
+                    field.onChange(hourValue);
+                  }}
+                  value={field.value?.toString() ?? undefined}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Hour" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <SelectItem key={i} value={i.toString()}>
+                        {i.toString().padStart(2, "0")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name={minuteName}
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={(value) => {
+                    const minuteValue = parseInt(value);
+                    field.onChange(minuteValue);
+                  }}
+                  value={field.value?.toString() ?? undefined}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Min" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Array.from({ length: 60 }, (_, i) => (
+                      <SelectItem key={i} value={i.toString()}>
+                        {i.toString().padStart(2, "0")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function CreateStationStopForm({
   stations,
@@ -39,11 +171,15 @@ export function CreateStationStopForm({
   const form = useForm<z.infer<typeof StationStopSchema>>({
     resolver: zodResolver(StationStopSchema),
     defaultValues: {
-      stopOrder: 0,
+      stopOrder: 1,
+      arrivalTimeHour: 0,
+      arrivalTimeMinute: 0,
+      departureTimeHour: 0,
+      departureTimeMinute: 0,
     },
   });
 
-  const { mutate: createTrain, isPending } = useMutation({
+  const { mutate: createStationStop, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof StationStopSchema>) => {
       const response = await fetch("/api/schedule/station-stop", {
         method: "POST",
@@ -70,16 +206,32 @@ export function CreateStationStopForm({
   });
 
   function onSubmit(values: z.infer<typeof StationStopSchema>) {
-    createTrain(values);
+    // Validate that not both times are null
+    if (values.arrivalTimeHour === null && values.departureTimeHour === null) {
+      toast.error("At least one time (arrival or departure) must be set");
+      return;
+    }
+    createStationStop(values);
   }
 
   return (
     <div className="w-full h-fit bg-white flex flex-col gap-y-4 p-4 border rounded-lg shadow">
-      <div className="my-8">
+      <div className="my-4">
         <p className="text-primary text-2xl font-semibold">
           Create New Station Stop
         </p>
       </div>
+
+      {form.watch("arrivalTimeHour") === null &&
+        form.watch("departureTimeHour") === null && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              You must set at least one time (arrival or departure)
+            </AlertDescription>
+          </Alert>
+        )}
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -90,14 +242,14 @@ export function CreateStationStopForm({
             name="stationId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Station </FormLabel>
+                <FormLabel>Station</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a train line" />
+                      <SelectValue placeholder="Select a station" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -109,7 +261,7 @@ export function CreateStationStopForm({
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  select the staion you want to work with
+                  Select the station for this stop
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -119,22 +271,24 @@ export function CreateStationStopForm({
           <FormField
             control={form.control}
             name="stopOrder"
-            render={({ field: { onChange, value, ...restField } }) => (
+            render={({ field }) => (
               <FormItem>
-                <FormLabel>The of this station in the route</FormLabel>
+                <FormLabel>Stop Order</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="something like 1 or 0.5"
                     type="number"
-                    step="0.01"
-                    value={value?.toString() || "0"}
+                    placeholder="Order of this station in the route"
+                    {...field}
                     onChange={(e) => {
-                      const inputValue = e.target.value;
-                      onChange(inputValue === "" ? 0 : parseFloat(inputValue));
+                      const value =
+                        e.target.value === "" ? 1 : parseInt(e.target.value);
+                      field.onChange(value);
                     }}
-                    {...restField}
                   />
                 </FormControl>
+                <FormDescription>
+                  Enter the order of this station in the route (e.g., 1, 2, 3)
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -152,7 +306,7 @@ export function CreateStationStopForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a train Schedule" />
+                      <SelectValue placeholder="Select a train schedule" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -172,145 +326,27 @@ export function CreateStationStopForm({
             )}
           />
 
-          <FormLabel>Departure Time</FormLabel>
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4" />
-            <div className="grid grid-cols-2 gap-2 w-full ">
-              <FormField
-                control={form.control}
-                name="departureTimeHour"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={(value) => {
-                        const hourValue = parseInt(value);
-                        field.onChange(hourValue);
-                      }}
-                      value={field.value?.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Hour" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.from({ length: 24 }, (_, i) => (
-                          <SelectItem key={i} value={i.toString()}>
-                            {i.toString().padStart(2, "0")}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <TimeSelect
+            label="Arrival Time"
+            hourName="arrivalTimeHour"
+            minuteName="arrivalTimeMinute"
+            otherHourName="departureTimeHour"
+            otherMinuteName="departureTimeMinute"
+            form={form}
+          />
 
-              <FormField
-                control={form.control}
-                name="departureTimeMinute"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={(value) => {
-                        const minuteValue = parseInt(value);
-                        field.onChange(minuteValue);
-                      }}
-                      value={field.value?.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Min" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.from({ length: 60 }, (_, i) => (
-                          <SelectItem key={i} value={i.toString()}>
-                            {i.toString().padStart(2, "0")}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-          <FormLabel>Arrival Time</FormLabel>
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4" />
-
-            <div className="grid grid-cols-2 gap-2 w-full ">
-              <FormField
-                control={form.control}
-                name="arrivalTimeHour"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={(value) => {
-                        const hourValue = parseInt(value);
-                        field.onChange(hourValue);
-                      }}
-                      value={field.value?.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Hour" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.from({ length: 24 }, (_, i) => (
-                          <SelectItem key={i} value={i.toString()}>
-                            {i.toString().padStart(2, "0")}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="arrivalTimeMinute"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={(value) => {
-                        const minuteValue = parseInt(value);
-                        field.onChange(minuteValue);
-                      }}
-                      value={field.value?.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Min" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Array.from({ length: 60 }, (_, i) => (
-                          <SelectItem key={i} value={i.toString()}>
-                            {i.toString().padStart(2, "0")}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormDescription>
-                Select the departure time (hour and minute)
-              </FormDescription>
-            </div>
-          </div>
+          <TimeSelect
+            label="Departure Time"
+            hourName="departureTimeHour"
+            minuteName="departureTimeMinute"
+            otherHourName="arrivalTimeHour"
+            otherMinuteName="arrivalTimeMinute"
+            form={form}
+          />
 
           <div className="w-full h-fit flex items-center my-8 justify-end">
-            <Button type="submit" className="" size={"lg"} disabled={isPending}>
-              {isPending ? "Creating..." : "Create Schedule"}
+            <Button type="submit" size="lg" disabled={isPending}>
+              {isPending ? "Creating..." : "Create Station Stop"}
             </Button>
           </div>
         </form>
