@@ -138,13 +138,11 @@ export function TrainSearchComponent({
     setSearchParams(values);
   }
 
-  // Format time from ISO string to readable format
   const formatTime = (isoString: string) => {
     const date = new Date(isoString);
     return format(date, "HH:mm");
   };
 
-  // Calculate journey duration
   const calculateDuration = (departure: string, arrival: string) => {
     const departureDate = new Date(departure);
     const arrivalDate = new Date(arrival);
@@ -282,7 +280,12 @@ export function TrainSearchComponent({
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => date < new Date()}
+                            disabled={(date) =>
+                              date <
+                              new Date(
+                                new Date().setDate(new Date().getDate() - 1)
+                              )
+                            }
                             initialFocus
                           />
                         </PopoverContent>

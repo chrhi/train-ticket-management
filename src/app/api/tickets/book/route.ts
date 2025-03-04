@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { nanoid } from "nanoid";
 
-// Helper function to generate a reference number
 function generateReferenceNumber() {
   return nanoid(10).toUpperCase();
 }

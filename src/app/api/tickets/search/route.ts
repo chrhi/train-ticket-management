@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    // Get query parameters
     const url = new URL(req.url);
     const originId = url.searchParams.get("originId");
     const destinationId = url.searchParams.get("destinationId");
@@ -30,18 +28,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Get day of week (0 = Sunday, 1 = Monday, etc.)
     const dayOfWeek = journeyDate.getDay();
-
-    // Find all train schedules that operate on this day
-    // and have station stops that include both origin and destination
 
     const availableSchedules = await db.trainSchedule.findMany({
       where: {
-        OR: [
-          { dayOfWeek: dayOfWeek }, // Specific day of week
-          { dayOfWeek: null }, // Daily schedule
-        ],
+        OR: [{ dayOfWeek: dayOfWeek }, { dayOfWeek: null }],
         stationStops: {
           some: {
             station: {
@@ -79,7 +70,6 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Filter out schedules where destination comes before origin
     const validSchedules = availableSchedules.filter((schedule) => {
       const originStop = schedule.stationStops.find(
         (stop) => stop.stationId === originId
@@ -95,7 +85,6 @@ export async function GET(req: NextRequest) {
 
     console.log(validSchedules);
 
-    // Process the data to return relevant ticket information
     const availableTickets = await Promise.all(
       validSchedules.map(async (schedule) => {
         const originStop = schedule.stationStops.find(
@@ -105,9 +94,7 @@ export async function GET(req: NextRequest) {
           (stop) => stop.stationId === destinationId
         )!;
 
-        // Calculate total distance for pricing
         let totalDistance = 0;
-        const currentStationId = originId;
 
         for (let i = originStop.stopOrder; i < destinationStop.stopOrder; i++) {
           const currentStop = schedule.stationStops.find(
