@@ -65,14 +65,32 @@ export async function GET() {
         trainLine: {
           include: {
             train: true,
-            classes: true,
           },
+        },
+        stationStops: {
+          include: {
+            station: true,
+          },
+          orderBy: { stopOrder: "asc" },
         },
       },
       orderBy: { departureTime: "asc" },
     });
 
-    return new NextResponse(JSON.stringify(trainSchedules), {
+    const formattedSchedules = trainSchedules.map((schedule) => ({
+      id: schedule.id,
+      trainLineName: schedule.trainLine.name,
+      trainName: schedule.trainLine.train.name,
+      dayOfWeek: schedule.dayOfWeek,
+      departureTime: schedule.departureTime,
+      stations: schedule.stationStops.map((stop) => ({
+        name: stop.station.name,
+        arrival: stop.arrivalTime ? stop.arrivalTime.toISOString() : null,
+        depar: stop.departureTime ? stop.departureTime.toISOString() : null,
+      })),
+    }));
+
+    return new NextResponse(JSON.stringify(formattedSchedules), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

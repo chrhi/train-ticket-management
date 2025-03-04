@@ -5,6 +5,7 @@ import { trainLineColumns } from "@/components/tables/columns/train/train-line.c
 import { DataTable } from "@/components/tables/data-table";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { TrainTrack } from "lucide-react";
 import Link from "next/link";
 
 export default async function Page() {
@@ -13,14 +14,15 @@ export default async function Page() {
   return (
     <>
       <PageHeader title="Admin users" />
-      <MaxWidthWrapper className="my-10 mt-16">
+      <MaxWidthWrapper className="my-20">
         <div className="w-full h-[50px] flex items-center justify-between">
           <h2 className="text-xl font-bold">All Train routes</h2>
           <Link
             href={"/admin/train-routes/create"}
-            className={cn(buttonVariants())}
+            className={cn(buttonVariants(), "space-x-4")}
           >
-            create Train line
+            <TrainTrack />
+            set new Train line
           </Link>
         </div>
         <div className="py-4">

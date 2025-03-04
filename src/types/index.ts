@@ -41,24 +41,25 @@ export interface TrainClass {
 export interface TrainLine {
   id: string;
   name: string;
-  trainId: string;
+  trainName: string;
+  stations: string[];
+  classess: string[];
   isActive: boolean;
-  train: Train;
-  classes: TrainClass[];
 }
 
 export type TrainSchedule = {
   id: string;
-  trainLineId: string;
+  trainLineName: string;
   dayOfWeek: number | null;
   departureTime: Date;
+  trainName: string;
+  stations: { name: string; arrival: string; depar: string }[];
 };
 
 export type StationStop = {
   id: string;
-  trainScheduleId: string;
-  stationId: string;
-  arrivalTime: string;
-  departureTime: string;
+  stationName: string; // ✅ Station name included
+  arrivalTime: string | null;
+  departureTime: string | null;
   stopOrder: number;
 };

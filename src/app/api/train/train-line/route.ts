@@ -60,17 +60,43 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
 export async function GET() {
   try {
     const trainLines = await db.trainLine.findMany({
       include: {
         train: true,
         classes: true,
+        schedules: {
+          include: {
+            stationStops: {
+              include: {
+                station: true, // Fetch the station details
+              },
+              orderBy: {
+                stopOrder: "asc", // Ensure stations are listed in order
+              },
+            },
+          },
+        },
       },
     });
 
-    return new NextResponse(JSON.stringify(trainLines), {
+    const formattedTrainLines = trainLines.map((trainLine) => ({
+      id: trainLine.id,
+      name: trainLine.name,
+      trainName: trainLine.train.name,
+      stations: [
+        ...new Set(
+          trainLine.schedules.flatMap((schedule) =>
+            schedule.stationStops.map((stop) => stop.station.name)
+          )
+        ),
+      ],
+      classess: trainLine.classes.map((trainClass) => trainClass.name),
+      isActive: trainLine.isActive,
+    }));
+
+    return new NextResponse(JSON.stringify(formattedTrainLines), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

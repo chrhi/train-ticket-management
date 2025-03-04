@@ -11,6 +11,7 @@ export async function getTrainSchedulesAction(): Promise<TrainSchedule[]> {
 
     const data: TrainSchedule[] = await response.json();
 
+    console.log(data);
     return data;
   } catch (error) {
     console.error("Error fetching admin users:", error);

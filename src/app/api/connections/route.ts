@@ -50,9 +50,26 @@ export async function POST(req: NextRequest) {
 
 export async function GET() {
   try {
-    const stations = await db.connection.findMany();
+    const connections = await db.connection.findMany({
+      include: {
+        toStation: {
+          select: {
+            name: true,
+          },
+        },
+        fromStation: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
 
-    return new NextResponse(JSON.stringify(stations), {
+    console.log("this is the connection");
+
+    console.log(connections);
+
+    return new NextResponse(JSON.stringify(connections), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

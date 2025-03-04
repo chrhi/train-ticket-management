@@ -18,14 +18,7 @@ export const destinationsColumns: ColumnDef<Destination>[] = [
     accessorKey: "name",
     header: "Name",
   },
-  {
-    accessorKey: "prev",
-    header: "Previous",
-  },
-  {
-    accessorKey: "next",
-    header: "Next",
-  },
+
   {
     accessorKey: "desc",
     header: "Description",

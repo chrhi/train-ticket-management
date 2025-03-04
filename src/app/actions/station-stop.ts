@@ -17,6 +17,8 @@ export async function getStationstopsAction(): Promise<StationStop[]> {
 
     const data: StationStop[] = await response.json();
 
+    console.log(data);
+
     return data;
   } catch (error) {
     console.error("Error fetching trains:", error);

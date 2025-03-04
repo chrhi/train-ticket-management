@@ -129,41 +129,25 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    // Parse query parameters
-    const url = new URL(req.url);
-    const trainScheduleId = url.searchParams.get("trainScheduleId");
-    const stationId = url.searchParams.get("stationId");
-
-    // Build filter based on query parameters
-    const where: any = {};
-    if (trainScheduleId) {
-      where.trainScheduleId = trainScheduleId;
-    }
-    if (stationId) {
-      where.stationId = stationId;
-    }
-
     const stationStops = await db.stationStop.findMany({
-      where,
       include: {
-        station: true,
-        trainSchedule: {
-          include: {
-            trainLine: {
-              include: {
-                train: true,
-              },
-            },
-          },
-        },
+        station: { select: { id: true, name: true } }, // ✅ Fetch station name
       },
       orderBy: { stopOrder: "asc" },
     });
 
-    return new NextResponse(JSON.stringify(stationStops), {
+    // ✅ Clean the response
+    const formattedStops = stationStops.map((stop) => ({
+      id: stop.id,
+      stationName: stop.station.name, // ✅ Ensure station name is included
+      arrivalTime: stop.arrivalTime,
+      departureTime: stop.departureTime,
+      stopOrder: stop.stopOrder,
+    }));
+
+    return new NextResponse(JSON.stringify(formattedStops), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

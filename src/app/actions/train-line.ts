@@ -14,6 +14,17 @@ export async function getTrainLinesAction(): Promise<TrainLine[]> {
 
     const data: TrainLine[] = await response.json();
 
+    // i will deal with this later
+
+    // const editedData : TrainLine[] = data.map(item => {
+    //   return {
+    //     ...data ,
+    //     trainId : item.train
+    //   }
+    // })
+
+    console.log(data);
+
     return data;
   } catch (error) {
     console.error("Error fetching train lines:", error);

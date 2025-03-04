@@ -10,13 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Connection } from "@/types";
 import Link from "next/link";
+import { Connection } from "@/types";
 
 export const connectionsColumns: ColumnDef<Connection>[] = [
   {
     accessorKey: "fromStation",
-    header: "From ",
+    header: "From",
   },
   {
     accessorKey: "toStation",
@@ -24,7 +24,8 @@ export const connectionsColumns: ColumnDef<Connection>[] = [
   },
   {
     accessorKey: "distance",
-    header: "Distance",
+    header: "Distance (km)",
+    cell: ({ row }) => <span>{row.getValue("distance")} km</span>,
   },
   {
     accessorKey: "isActive",
@@ -48,23 +49,19 @@ export const connectionsColumns: ColumnDef<Connection>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      const destination = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreHorizontal className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <Link href={`/admin/destinations/${destination.id}`}>
-              <DropdownMenuItem className="cursor-pointer">
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-            </Link>
+            <DropdownMenuItem asChild>
+              <Link href={`/connections/edit/${row.original.id}`}>
+                <Pencil className="mr-2 h-4 w-4" /> Edit
+              </Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
